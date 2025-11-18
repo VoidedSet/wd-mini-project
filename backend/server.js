@@ -65,8 +65,22 @@ async function run() {
     try {
         await client.connect();
         console.log("✅ Connected to Local MongoDB!");
-        app.post('/signup', async (req, res) => {
+        // ...existing code...
+
+const users = [];
+
+app.post('/signup', async (req, res) => {
     const { username, password } = req.body;
+    
+    if (!username || !password) {
+        return res.json({ success: false, message: 'Username and password required' });
+    }
+    
+    const userExists = users.find(u => u.username === username);
+    if (userExists) {
+        return res.json({ success: false, message: 'User already exists' });
+    }
+    
     const hashedPassword = await bcrypt.hash(password, 10);
     users.push({ username, password: hashedPassword });
     res.json({ success: true, message: 'User registered successfully' });
@@ -74,16 +88,26 @@ async function run() {
 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
+    
+    if (!username || !password) {
+        return res.json({ success: false, message: 'Username and password required' });
+    }
+    
     const user = users.find(u => u.username === username);
-    if (!user) return res.json({ success: false, message: 'User not found' });
+    if (!user) {
+        return res.json({ success: false, message: 'User not found' });
+    }
 
     const isValid = await bcrypt.compare(password, user.password);
-    if (!isValid) return res.json({ success: false, message: 'Invalid password' });
+    if (!isValid) {
+        return res.json({ success: false, message: 'Invalid password' });
+    }
 
-    const token = jwt.sign({ username }, 'your_jwt_secret'); // Use a secure secret
+    const token = jwt.sign({ username }, 'your_jwt_secret');
     res.json({ success: true, token });
 });
 
+// ...rest of existing code...
         // GET WATCHLIST (use findOne to avoid items[0] issues)
         app.get('/watchlist', async (req, res) => {
             const watchlistCol = client.db(dbName).collection('watchlist');

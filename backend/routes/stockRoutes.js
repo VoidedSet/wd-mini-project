@@ -4,7 +4,7 @@ const User = require("../models/User");
 const auth = require("../middleware/auth");
 const router = express.Router();
 
-console.log("stockRoutes loaded"); // confirm file loaded at startup
+console.log("stockRoutes loaded"); // confirm at server start
 
 // list all market stocks
 router.get("/", async (req, res) => {

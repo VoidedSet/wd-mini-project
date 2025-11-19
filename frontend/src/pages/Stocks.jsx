@@ -4,23 +4,48 @@ import { api } from "../api";
 export default function Stocks() {
   const [stocks, setStocks] = useState([]);
   const [trade, setTrade] = useState({ ticker: "", quantity: 0 });
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    api.get("/stocks").then(res => setStocks(res.data));
-  }, []);
+  const load = async () => {
+    try {
+      const res = await api.get("/stocks");
+      setStocks(res.data);
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data || "Failed to load stocks");
+    }
+  };
+
+  useEffect(() => { load(); }, []);
 
   const buy = async () => {
-    await api.post("/stocks/buy", trade, {
-      headers: { Authorization: localStorage.getItem("token") }
-    });
-    alert("Bought");
+    if (!trade.ticker || !trade.quantity || Number(trade.quantity) <= 0) return alert("Enter valid ticker and quantity");
+    setLoading(true);
+    try {
+      // backend buy endpoint lives under /users/buy
+      await api.post("/users/buy", { ticker: trade.ticker.toUpperCase(), quantity: Number(trade.quantity) });
+      alert("Bought");
+      setTrade({ ticker: "", quantity: 0 });
+      await load();
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data || "Buy failed");
+    } finally { setLoading(false); }
   };
 
   const sell = async () => {
-    await api.post("/stocks/sell", trade, {
-      headers: { Authorization: localStorage.getItem("token") }
-    });
-    alert("Sold");
+    if (!trade.ticker || !trade.quantity || Number(trade.quantity) <= 0) return alert("Enter valid ticker and quantity");
+    setLoading(true);
+    try {
+      // sell endpoint is /stocks/sell (backend)
+      await api.post("/stocks/sell", { ticker: trade.ticker.toUpperCase(), quantity: Number(trade.quantity) });
+      alert("Sold");
+      setTrade({ ticker: "", quantity: 0 });
+      await load();
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data || "Sell failed");
+    } finally { setLoading(false); }
   };
 
   return (
@@ -32,11 +57,11 @@ export default function Stocks() {
       ))}
 
       <h3>Trade</h3>
-      <input placeholder="Ticker" onChange={e => setTrade({...trade, ticker:e.target.value})} />
-      <input placeholder="Quantity" onChange={e => setTrade({...trade, quantity:Number(e.target.value)})} />
+      <input placeholder="Ticker" value={trade.ticker} onChange={e => setTrade({...trade, ticker: e.target.value.toUpperCase()})} />
+      <input placeholder="Quantity" value={trade.quantity} onChange={e => setTrade({...trade, quantity: Number(e.target.value)})} />
 
-      <button onClick={buy}>Buy</button>
-      <button onClick={sell}>Sell</button>
+      <button onClick={buy} disabled={loading}>Buy</button>
+      <button onClick={sell} disabled={loading} style={{ marginLeft: 8 }}>Sell</button>
     </div>
   );
 }

@@ -4,9 +4,8 @@ const User = require("../models/User");
 const auth = require("../middleware/auth");
 const router = express.Router();
 
-console.log("stockRoutes loaded"); // confirm at server start
-
-// list all market stocks
+console.log("stockRoutes loaded");
+//to get all stocks in market
 router.get("/", async (req, res) => {
   try {
     const stocks = await Stock.find().sort({ ticker: 1 });
@@ -16,7 +15,6 @@ router.get("/", async (req, res) => {
     res.status(500).json("Failed to fetch stocks");
   }
 });
-
 // add a stock to market
 router.post("/add", auth, async (req, res) => {
   try {
@@ -32,7 +30,6 @@ router.post("/add", auth, async (req, res) => {
     res.status(500).json("Failed to add stock");
   }
 });
-
 // sell stocks (persist changes to DB)
 router.post("/sell", auth, async (req, res) => {
   try {
@@ -71,3 +68,9 @@ router.post("/sell", auth, async (req, res) => {
 });
 
 module.exports = router;
+
+
+//basically :
+//to get all stocks in market
+//to add a stock to market
+//to sell stocks

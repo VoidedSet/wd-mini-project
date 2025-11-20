@@ -1,4 +1,3 @@
-// ...existing code...
 const jwt = require("jsonwebtoken");
 
 module.exports = (req, res, next) => {
@@ -8,7 +7,7 @@ module.exports = (req, res, next) => {
   const token = authHeader.startsWith("Bearer ")
     ? authHeader.split(" ")[1]
     : authHeader;
-
+//this will automatically start with Bearer
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret123");
     req.user = decoded.id;
@@ -17,4 +16,3 @@ module.exports = (req, res, next) => {
     res.status(400).json("Invalid Token");
   }
 };
-// ...existing code...

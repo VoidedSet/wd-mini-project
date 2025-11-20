@@ -6,7 +6,6 @@ const auth = require("../middleware/auth");
 const router = express.Router();
 const Stock = require("../models/Stock");
 
-// Signup
 router.post("/signup", async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -20,7 +19,6 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-// Login (add login history)
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -51,15 +49,12 @@ router.post("/login", async (req, res) => {
     res.status(500).json("Login failed");
   }
 });
-
-// Deposit endpoint - validate numeric input safely
 router.post("/deposit", auth, async (req, res) => {
   try {
     const amt = Number(req.body.amount);
     if (isNaN(amt) || amt <= 0) return res.status(400).json("Invalid amount");
 
     const user = await User.findById(req.user);
-    // ensure existing value is numeric before adding
     const current = Number(user.amountDeposited) || 0;
     user.amountDeposited = current + amt;
     await user.save();
@@ -71,13 +66,11 @@ router.post("/deposit", auth, async (req, res) => {
   }
 });
 
-// Get user dashboard info
 router.get("/me", auth, async (req, res) => {
   const user = await User.findById(req.user);
   res.json(user);
 });
 
-// Buy stocks: { ticker, quantity } - safe numeric handling
 router.post("/buy", auth, async (req, res) => {
   try {
     const { ticker } = req.body;
@@ -95,10 +88,8 @@ router.post("/buy", auth, async (req, res) => {
     const currentBalance = Number(user.amountDeposited) || 0;
     if (currentBalance < total) return res.status(400).json("Insufficient funds");
 
-    // update holdings
     const existing = user.stocksOwned.find(s => s.ticker === stock.ticker);
     if (existing) {
-      // update quantity and average price (weighted)
       const prevQty = Number(existing.quantity) || 0;
       const prevAvg = Number(existing.avgPrice) || price;
       const newQty = prevQty + qty;
@@ -120,3 +111,10 @@ router.post("/buy", auth, async (req, res) => {
 });
 
 module.exports = router;
+
+//Basically:
+//to sign up
+//to log in
+//to deposit money
+//to get current user info
+//to buy stocks

@@ -35,7 +35,7 @@ export default function Dashboard() {
     setLoading(true);
     try {
       for (const s of sampleTickers) {
-        try { await api.post("/stocks/add", s); } catch (e) { /* ignore duplicates */ }
+        try { await api.post("/stocks/add", s); } catch (e) {  }
       }
       const res = await api.get("/stocks");
       setMarket(res.data);
@@ -157,3 +157,7 @@ export default function Dashboard() {
     </div>
   );
 }
+
+//We have used useState for:
+//user data, market data, deposit amount, and quantities. When state changes, the component re-renders.
+//await makes async code cleaner, more readable, and easier to handle with try-catch.

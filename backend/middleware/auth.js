@@ -11,7 +11,7 @@ module.exports = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret123");
     req.user = decoded.id;
-    next();
+    next();//to move to next nroute
   } catch (err) {
     res.status(400).json("Invalid Token");
   }
